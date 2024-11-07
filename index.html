@@ -1,0 +1,969 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="data/TexasCounties_1.js"></script>
+        <script src="data/StateofTexasTurnout_2.js"></script>
+        <script src="data/HidalgoCountyTurnout_3.js"></script>
+        <script src="data/USHouseDistrict34_4.js"></script>
+        <script src="data/USHouseDistrict15_5.js"></script>
+        <script src="data/ResultsDistrict34_6.js"></script>
+        <script src="data/ResultsDistrict15_7.js"></script>
+        <script src="data/ResultsUSSenator_8.js"></script>
+        <script src="data/ResultsPresident_9.js"></script>
+        <script>
+        var map = L.map('map', {
+            zoomControl:false, maxZoom:26, minZoom:4
+        }).fitBounds([[25.65521071739914,-99.28968942857473],[27.245761177757412,-97.24431609983868]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        // remove popup's row if "visible-with-data"
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        // add class to format popup if it contains media
+		function addClassToPopupIfMedia(content, popup) {
+			var tempDiv = document.createElement('div');
+			tempDiv.innerHTML = content;
+			if (tempDiv.querySelector('td img')) {
+				popup._contentNode.classList.add('media');
+					// Delay to force the redraw
+					setTimeout(function() {
+						popup.update();
+					}, 10);
+			} else {
+				popup._contentNode.classList.remove('media');
+			}
+		}
+        var zoomControl = L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        map.createPane('pane_OSMStandard_0');
+        map.getPane('pane_OSMStandard_0').style.zIndex = 400;
+        var layer_OSMStandard_0 = L.tileLayer('http://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            pane: 'pane_OSMStandard_0',
+            opacity: 1.0,
+            attribution: '<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors, CC-BY-SA</a>',
+            minZoom: 4,
+            maxZoom: 26,
+            minNativeZoom: 0,
+            maxNativeZoom: 19
+        });
+        layer_OSMStandard_0;
+        map.addLayer(layer_OSMStandard_0);
+        function pop_TexasCounties_1(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['GID'] !== null ? autolinker.link(feature.properties['GID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SHAPE_Leng'] !== null ? autolinker.link(feature.properties['SHAPE_Leng'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SHAPE_Area'] !== null ? autolinker.link(feature.properties['SHAPE_Area'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_TexasCounties_1_0() {
+            return {
+                pane: 'pane_TexasCounties_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(231,113,72,0.0)',
+                interactive: false,
+            }
+        }
+        map.createPane('pane_TexasCounties_1');
+        map.getPane('pane_TexasCounties_1').style.zIndex = 401;
+        map.getPane('pane_TexasCounties_1').style['mix-blend-mode'] = 'normal';
+        var layer_TexasCounties_1 = new L.geoJson(json_TexasCounties_1, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_TexasCounties_1',
+            layerName: 'layer_TexasCounties_1',
+            pane: 'pane_TexasCounties_1',
+            onEachFeature: pop_TexasCounties_1,
+            style: style_TexasCounties_1_0,
+        });
+        bounds_group.addLayer(layer_TexasCounties_1);
+        map.addLayer(layer_TexasCounties_1);
+        function pop_StateofTexasTurnout_2(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">County</th>\
+                        <td>' + (feature.properties['County'] !== null ? autolinker.link(feature.properties['County'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Registered</th>\
+                        <td>' + (feature.properties['Registered'] !== null ? autolinker.link(feature.properties['Registered'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Voted</th>\
+                        <td>' + (feature.properties['Voted'] !== null ? autolinker.link(feature.properties['Voted'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Percent</th>\
+                        <td>' + (feature.properties['Percent'] !== null ? autolinker.link(feature.properties['Percent'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_StateofTexasTurnout_2_0(feature) {
+            if (feature.properties['Percent'] >= 20.000000 && feature.properties['Percent'] <= 30.000000 ) {
+                return {
+                pane: 'pane_StateofTexasTurnout_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(247,252,245,0.5019607843137255)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Percent'] >= 30.000000 && feature.properties['Percent'] <= 40.000000 ) {
+                return {
+                pane: 'pane_StateofTexasTurnout_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(213,239,207,0.5019607843137255)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Percent'] >= 40.000000 && feature.properties['Percent'] <= 50.000000 ) {
+                return {
+                pane: 'pane_StateofTexasTurnout_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(158,215,152,0.5019607843137255)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Percent'] >= 50.000000 && feature.properties['Percent'] <= 60.000000 ) {
+                return {
+                pane: 'pane_StateofTexasTurnout_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(85,181,103,0.5019607843137255)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Percent'] >= 60.000000 && feature.properties['Percent'] <= 70.000000 ) {
+                return {
+                pane: 'pane_StateofTexasTurnout_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(29,134,65,0.5019607843137255)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Percent'] >= 70.000000 && feature.properties['Percent'] <= 82.000000 ) {
+                return {
+                pane: 'pane_StateofTexasTurnout_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,68,27,1.0)',
+                interactive: true,
+            }
+            }
+        }
+        map.createPane('pane_StateofTexasTurnout_2');
+        map.getPane('pane_StateofTexasTurnout_2').style.zIndex = 402;
+        map.getPane('pane_StateofTexasTurnout_2').style['mix-blend-mode'] = 'normal';
+        var layer_StateofTexasTurnout_2 = new L.geoJson(json_StateofTexasTurnout_2, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_StateofTexasTurnout_2',
+            layerName: 'layer_StateofTexasTurnout_2',
+            pane: 'pane_StateofTexasTurnout_2',
+            onEachFeature: pop_StateofTexasTurnout_2,
+            style: style_StateofTexasTurnout_2_0,
+        });
+        bounds_group.addLayer(layer_StateofTexasTurnout_2);
+        map.addLayer(layer_StateofTexasTurnout_2);
+        function pop_HidalgoCountyTurnout_3(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Precinct</th>\
+                        <td>' + (feature.properties['Precinct'] !== null ? autolinker.link(feature.properties['Precinct'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Registered</th>\
+                        <td>' + (feature.properties['Registered'] !== null ? autolinker.link(feature.properties['Registered'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Voted</th>\
+                        <td>' + (feature.properties['Voted'] !== null ? autolinker.link(feature.properties['Voted'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Percent</th>\
+                        <td>' + (feature.properties['Percent'] !== null ? autolinker.link(feature.properties['Percent'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_HidalgoCountyTurnout_3_0(feature) {
+            if (feature.properties['Percent'] >= 20.000000 && feature.properties['Percent'] <= 30.000000 ) {
+                return {
+                pane: 'pane_HidalgoCountyTurnout_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(247,252,245,0.5019607843137255)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Percent'] >= 30.000000 && feature.properties['Percent'] <= 40.000000 ) {
+                return {
+                pane: 'pane_HidalgoCountyTurnout_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(221,242,215,0.5019607843137255)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Percent'] >= 40.000000 && feature.properties['Percent'] <= 50.000000 ) {
+                return {
+                pane: 'pane_HidalgoCountyTurnout_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(178,224,171,0.5019607843137255)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Percent'] >= 50.000000 && feature.properties['Percent'] <= 60.000000 ) {
+                return {
+                pane: 'pane_HidalgoCountyTurnout_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(123,199,124,0.5019607843137255)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Percent'] >= 60.000000 && feature.properties['Percent'] <= 70.000000 ) {
+                return {
+                pane: 'pane_HidalgoCountyTurnout_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(61,167,90,0.5019607843137255)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Percent'] >= 70.000000 && feature.properties['Percent'] <= 80.000000 ) {
+                return {
+                pane: 'pane_HidalgoCountyTurnout_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(19,126,58,0.5019607843137255)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Percent'] >= 80.000000 && feature.properties['Percent'] <= 91.000000 ) {
+                return {
+                pane: 'pane_HidalgoCountyTurnout_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,68,27,0.5019607843137255)',
+                interactive: true,
+            }
+            }
+        }
+        map.createPane('pane_HidalgoCountyTurnout_3');
+        map.getPane('pane_HidalgoCountyTurnout_3').style.zIndex = 403;
+        map.getPane('pane_HidalgoCountyTurnout_3').style['mix-blend-mode'] = 'normal';
+        var layer_HidalgoCountyTurnout_3 = new L.geoJson(json_HidalgoCountyTurnout_3, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_HidalgoCountyTurnout_3',
+            layerName: 'layer_HidalgoCountyTurnout_3',
+            pane: 'pane_HidalgoCountyTurnout_3',
+            onEachFeature: pop_HidalgoCountyTurnout_3,
+            style: style_HidalgoCountyTurnout_3_0,
+        });
+        bounds_group.addLayer(layer_HidalgoCountyTurnout_3);
+        map.addLayer(layer_HidalgoCountyTurnout_3);
+        function pop_USHouseDistrict34_4(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REP_NM'] !== null ? autolinker.link(feature.properties['REP_NM'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DIST_NBR'] !== null ? autolinker.link(feature.properties['DIST_NBR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_USHouseDistrict34_4_0() {
+            return {
+                pane: 'pane_USHouseDistrict34_4',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_USHouseDistrict34_4');
+        map.getPane('pane_USHouseDistrict34_4').style.zIndex = 404;
+        map.getPane('pane_USHouseDistrict34_4').style['mix-blend-mode'] = 'normal';
+        var layer_USHouseDistrict34_4 = new L.geoJson(json_USHouseDistrict34_4, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_USHouseDistrict34_4',
+            layerName: 'layer_USHouseDistrict34_4',
+            pane: 'pane_USHouseDistrict34_4',
+            onEachFeature: pop_USHouseDistrict34_4,
+            style: style_USHouseDistrict34_4_0,
+        });
+        bounds_group.addLayer(layer_USHouseDistrict34_4);
+        map.addLayer(layer_USHouseDistrict34_4);
+        function pop_USHouseDistrict15_5(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REP_NM'] !== null ? autolinker.link(feature.properties['REP_NM'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DIST_NBR'] !== null ? autolinker.link(feature.properties['DIST_NBR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_USHouseDistrict15_5_0() {
+            return {
+                pane: 'pane_USHouseDistrict15_5',
+                opacity: 1,
+                color: 'rgba(228,0,66,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_USHouseDistrict15_5');
+        map.getPane('pane_USHouseDistrict15_5').style.zIndex = 405;
+        map.getPane('pane_USHouseDistrict15_5').style['mix-blend-mode'] = 'normal';
+        var layer_USHouseDistrict15_5 = new L.geoJson(json_USHouseDistrict15_5, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_USHouseDistrict15_5',
+            layerName: 'layer_USHouseDistrict15_5',
+            pane: 'pane_USHouseDistrict15_5',
+            onEachFeature: pop_USHouseDistrict15_5,
+            style: style_USHouseDistrict15_5_0,
+        });
+        bounds_group.addLayer(layer_USHouseDistrict15_5);
+        map.addLayer(layer_USHouseDistrict15_5);
+        function pop_ResultsDistrict34_6(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Precinct</th>\
+                        <td>' + (feature.properties['Precinct'] !== null ? autolinker.link(feature.properties['Precinct'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Flores</th>\
+                        <td>' + (feature.properties['Flores'] !== null ? autolinker.link(feature.properties['Flores'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Gonzalez</th>\
+                        <td>' + (feature.properties['Gonzalez'] !== null ? autolinker.link(feature.properties['Gonzalez'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+        function style_ResultsDistrict34_6_0(feature) {
+            var context = {
+                feature: feature,
+                variables: {}
+            };
+            // Start of if blocks and style check logic
+            if (exp_ResultsDistrict34_6rule0_eval_expression(context)) {
+                  return {
+                pane: 'pane_ResultsDistrict34_6',
+                opacity: 1,
+                color: 'rgba(247,247,247,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,55,205,0.5019607843137255)',
+                interactive: true,
+            };
+                }
+                else if (exp_ResultsDistrict34_6rule1_eval_expression(context)) {
+                  return {
+                pane: 'pane_ResultsDistrict34_6',
+                opacity: 1,
+                color: 'rgba(247,247,247,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(193,0,0,0.5019607843137255)',
+                interactive: true,
+            };
+                }
+                else if (exp_ResultsDistrict34_6rule2_eval_expression(context)) {
+                  return {
+                pane: 'pane_ResultsDistrict34_6',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(156,0,177,0.5019607843137255)',
+                interactive: true,
+            };
+                }
+            else {
+                return {fill: false, stroke: false};
+            }
+        }
+        map.createPane('pane_ResultsDistrict34_6');
+        map.getPane('pane_ResultsDistrict34_6').style.zIndex = 406;
+        map.getPane('pane_ResultsDistrict34_6').style['mix-blend-mode'] = 'normal';
+        var layer_ResultsDistrict34_6 = new L.geoJson(json_ResultsDistrict34_6, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_ResultsDistrict34_6',
+            layerName: 'layer_ResultsDistrict34_6',
+            pane: 'pane_ResultsDistrict34_6',
+            onEachFeature: pop_ResultsDistrict34_6,
+            style: style_ResultsDistrict34_6_0,
+        });
+        bounds_group.addLayer(layer_ResultsDistrict34_6);
+        map.addLayer(layer_ResultsDistrict34_6);
+        function pop_ResultsDistrict15_7(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Precinct</th>\
+                        <td>' + (feature.properties['Precinct'] !== null ? autolinker.link(feature.properties['Precinct'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">De La Cruz</th>\
+                        <td>' + (feature.properties['De La Cruz'] !== null ? autolinker.link(feature.properties['De La Cruz'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Vallejo</th>\
+                        <td>' + (feature.properties['Vallejo'] !== null ? autolinker.link(feature.properties['Vallejo'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+        function style_ResultsDistrict15_7_0(feature) {
+            var context = {
+                feature: feature,
+                variables: {}
+            };
+            // Start of if blocks and style check logic
+            if (exp_ResultsDistrict15_7rule0_eval_expression(context)) {
+                  return {
+                pane: 'pane_ResultsDistrict15_7',
+                opacity: 1,
+                color: 'rgba(247,247,247,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(193,0,0,0.5019607843137255)',
+                interactive: true,
+            };
+                }
+                else if (exp_ResultsDistrict15_7rule1_eval_expression(context)) {
+                  return {
+                pane: 'pane_ResultsDistrict15_7',
+                opacity: 1,
+                color: 'rgba(247,247,247,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,55,205,0.5019607843137255)',
+                interactive: true,
+            };
+                }
+                else if (exp_ResultsDistrict15_7rule2_eval_expression(context)) {
+                  return {
+                pane: 'pane_ResultsDistrict15_7',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(156,0,177,0.5019607843137255)',
+                interactive: true,
+            };
+                }
+            else {
+                return {fill: false, stroke: false};
+            }
+        }
+        map.createPane('pane_ResultsDistrict15_7');
+        map.getPane('pane_ResultsDistrict15_7').style.zIndex = 407;
+        map.getPane('pane_ResultsDistrict15_7').style['mix-blend-mode'] = 'normal';
+        var layer_ResultsDistrict15_7 = new L.geoJson(json_ResultsDistrict15_7, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_ResultsDistrict15_7',
+            layerName: 'layer_ResultsDistrict15_7',
+            pane: 'pane_ResultsDistrict15_7',
+            onEachFeature: pop_ResultsDistrict15_7,
+            style: style_ResultsDistrict15_7_0,
+        });
+        bounds_group.addLayer(layer_ResultsDistrict15_7);
+        map.addLayer(layer_ResultsDistrict15_7);
+        function pop_ResultsUSSenator_8(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Precinct</th>\
+                        <td>' + (feature.properties['Precinct'] !== null ? autolinker.link(feature.properties['Precinct'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Cruz</th>\
+                        <td>' + (feature.properties['Cruz'] !== null ? autolinker.link(feature.properties['Cruz'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Allred</th>\
+                        <td>' + (feature.properties['Allred'] !== null ? autolinker.link(feature.properties['Allred'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+        function style_ResultsUSSenator_8_0(feature) {
+            var context = {
+                feature: feature,
+                variables: {}
+            };
+            // Start of if blocks and style check logic
+            if (exp_ResultsUSSenator_8rule0_eval_expression(context)) {
+                  return {
+                pane: 'pane_ResultsUSSenator_8',
+                opacity: 1,
+                color: 'rgba(247,247,247,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(193,0,0,0.5019607843137255)',
+                interactive: true,
+            };
+                }
+                else if (exp_ResultsUSSenator_8rule1_eval_expression(context)) {
+                  return {
+                pane: 'pane_ResultsUSSenator_8',
+                opacity: 1,
+                color: 'rgba(247,247,247,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,55,205,0.5019607843137255)',
+                interactive: true,
+            };
+                }
+                else if (exp_ResultsUSSenator_8rule2_eval_expression(context)) {
+                  return {
+                pane: 'pane_ResultsUSSenator_8',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(156,0,177,0.5019607843137255)',
+                interactive: true,
+            };
+                }
+            else {
+                return {fill: false, stroke: false};
+            }
+        }
+        map.createPane('pane_ResultsUSSenator_8');
+        map.getPane('pane_ResultsUSSenator_8').style.zIndex = 408;
+        map.getPane('pane_ResultsUSSenator_8').style['mix-blend-mode'] = 'normal';
+        var layer_ResultsUSSenator_8 = new L.geoJson(json_ResultsUSSenator_8, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_ResultsUSSenator_8',
+            layerName: 'layer_ResultsUSSenator_8',
+            pane: 'pane_ResultsUSSenator_8',
+            onEachFeature: pop_ResultsUSSenator_8,
+            style: style_ResultsUSSenator_8_0,
+        });
+        bounds_group.addLayer(layer_ResultsUSSenator_8);
+        map.addLayer(layer_ResultsUSSenator_8);
+        function pop_ResultsPresident_9(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Precinct</th>\
+                        <td>' + (feature.properties['Precinct'] !== null ? autolinker.link(feature.properties['Precinct'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Trump</th>\
+                        <td>' + (feature.properties['Trump'] !== null ? autolinker.link(feature.properties['Trump'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Harris</th>\
+                        <td>' + (feature.properties['Harris'] !== null ? autolinker.link(feature.properties['Harris'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+        function style_ResultsPresident_9_0(feature) {
+            var context = {
+                feature: feature,
+                variables: {}
+            };
+            // Start of if blocks and style check logic
+            if (exp_ResultsPresident_9rule0_eval_expression(context)) {
+                  return {
+                pane: 'pane_ResultsPresident_9',
+                opacity: 1,
+                color: 'rgba(247,247,247,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(193,0,0,0.5019607843137255)',
+                interactive: true,
+            };
+                }
+                else if (exp_ResultsPresident_9rule1_eval_expression(context)) {
+                  return {
+                pane: 'pane_ResultsPresident_9',
+                opacity: 1,
+                color: 'rgba(247,247,247,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,55,205,0.5019607843137255)',
+                interactive: true,
+            };
+                }
+                else if (exp_ResultsPresident_9rule2_eval_expression(context)) {
+                  return {
+                pane: 'pane_ResultsPresident_9',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(156,0,177,0.5019607843137255)',
+                interactive: true,
+            };
+                }
+            else {
+                return {fill: false, stroke: false};
+            }
+        }
+        map.createPane('pane_ResultsPresident_9');
+        map.getPane('pane_ResultsPresident_9').style.zIndex = 409;
+        map.getPane('pane_ResultsPresident_9').style['mix-blend-mode'] = 'normal';
+        var layer_ResultsPresident_9 = new L.geoJson(json_ResultsPresident_9, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_ResultsPresident_9',
+            layerName: 'layer_ResultsPresident_9',
+            pane: 'pane_ResultsPresident_9',
+            onEachFeature: pop_ResultsPresident_9,
+            style: style_ResultsPresident_9_0,
+        });
+        bounds_group.addLayer(layer_ResultsPresident_9);
+        map.addLayer(layer_ResultsPresident_9);
+        var overlaysTree = [
+            {label: 'Results: President<br /><table><tr><td style="text-align: center;"><img src="legend/ResultsPresident_9_Trump0.png" /></td><td>Trump</td></tr><tr><td style="text-align: center;"><img src="legend/ResultsPresident_9_Harris1.png" /></td><td>Harris</td></tr><tr><td style="text-align: center;"><img src="legend/ResultsPresident_9_Equal2.png" /></td><td>Equal</td></tr></table>', layer: layer_ResultsPresident_9},
+            {label: 'Results: US Senator<br /><table><tr><td style="text-align: center;"><img src="legend/ResultsUSSenator_8_Cruz0.png" /></td><td>Cruz</td></tr><tr><td style="text-align: center;"><img src="legend/ResultsUSSenator_8_Allred1.png" /></td><td>Allred</td></tr><tr><td style="text-align: center;"><img src="legend/ResultsUSSenator_8_Equal2.png" /></td><td>Equal</td></tr></table>', layer: layer_ResultsUSSenator_8},
+            {label: 'Results: District 15<br /><table><tr><td style="text-align: center;"><img src="legend/ResultsDistrict15_7_DeLaCruz0.png" /></td><td>De La Cruz</td></tr><tr><td style="text-align: center;"><img src="legend/ResultsDistrict15_7_Vallejo1.png" /></td><td>Vallejo</td></tr><tr><td style="text-align: center;"><img src="legend/ResultsDistrict15_7_Equal2.png" /></td><td>Equal</td></tr></table>', layer: layer_ResultsDistrict15_7},
+            {label: 'Results: District 34<br /><table><tr><td style="text-align: center;"><img src="legend/ResultsDistrict34_6_Gonzalez0.png" /></td><td>Gonzalez</td></tr><tr><td style="text-align: center;"><img src="legend/ResultsDistrict34_6_Flores1.png" /></td><td>Flores</td></tr><tr><td style="text-align: center;"><img src="legend/ResultsDistrict34_6_Equal2.png" /></td><td>Equal</td></tr></table>', layer: layer_ResultsDistrict34_6},
+            {label: '<img src="legend/USHouseDistrict15_5.png" /> US House District 15', layer: layer_USHouseDistrict15_5},
+            {label: '<img src="legend/USHouseDistrict34_4.png" /> US House District 34', layer: layer_USHouseDistrict34_4},
+            {label: 'Hidalgo County Turnout<br /><table><tr><td style="text-align: center;"><img src="legend/HidalgoCountyTurnout_3_20300.png" /></td><td>20% - 30%</td></tr><tr><td style="text-align: center;"><img src="legend/HidalgoCountyTurnout_3_30401.png" /></td><td>30% - 40%</td></tr><tr><td style="text-align: center;"><img src="legend/HidalgoCountyTurnout_3_40502.png" /></td><td>40% - 50%</td></tr><tr><td style="text-align: center;"><img src="legend/HidalgoCountyTurnout_3_50603.png" /></td><td>50% - 60%</td></tr><tr><td style="text-align: center;"><img src="legend/HidalgoCountyTurnout_3_60704.png" /></td><td>60% - 70%</td></tr><tr><td style="text-align: center;"><img src="legend/HidalgoCountyTurnout_3_70805.png" /></td><td>70% - 80%</td></tr><tr><td style="text-align: center;"><img src="legend/HidalgoCountyTurnout_3_80916.png" /></td><td>80% - 91%</td></tr></table>', layer: layer_HidalgoCountyTurnout_3},
+            {label: 'State of Texas Turnout<br /><table><tr><td style="text-align: center;"><img src="legend/StateofTexasTurnout_2_20300.png" /></td><td>20% - 30%</td></tr><tr><td style="text-align: center;"><img src="legend/StateofTexasTurnout_2_30401.png" /></td><td>30% - 40%</td></tr><tr><td style="text-align: center;"><img src="legend/StateofTexasTurnout_2_40502.png" /></td><td>40% - 50%</td></tr><tr><td style="text-align: center;"><img src="legend/StateofTexasTurnout_2_50603.png" /></td><td>50% - 60%</td></tr><tr><td style="text-align: center;"><img src="legend/StateofTexasTurnout_2_60704.png" /></td><td>60% - 70%</td></tr><tr><td style="text-align: center;"><img src="legend/StateofTexasTurnout_2_70825.png" /></td><td>70% - 82%</td></tr></table>', layer: layer_StateofTexasTurnout_2},
+            {label: '<img src="legend/TexasCounties_1.png" /> Texas Counties', layer: layer_TexasCounties_1},
+            {label: "OSM Standard", layer: layer_OSMStandard_0},]
+        var lay = L.control.layers.tree(null, overlaysTree,{
+            //namedToggle: true,
+            //selectorBack: false,
+            //closedSymbol: '&#8862; &#x1f5c0;',
+            //openedSymbol: '&#8863; &#x1f5c1;',
+            //collapseAll: 'Collapse all',
+            //expandAll: 'Expand all',
+            collapsed: false, 
+        });
+        lay.addTo(map);
+		document.addEventListener("DOMContentLoaded", function() {
+            // set new Layers List height which considers toggle icon
+            function newLayersListHeight() {
+                var layerScrollbarElement = document.querySelector('.leaflet-control-layers-scrollbar');
+                if (layerScrollbarElement) {
+                    var layersListElement = document.querySelector('.leaflet-control-layers-list');
+                    var originalHeight = layersListElement.style.height 
+                        || window.getComputedStyle(layersListElement).height;
+                    var newHeight = parseFloat(originalHeight) - 50;
+                    layersListElement.style.height = newHeight + 'px';
+                }
+            }
+            var isLayersListExpanded = true;
+            var controlLayersElement = document.querySelector('.leaflet-control-layers');
+            var toggleLayerControl = document.querySelector('.leaflet-control-layers-toggle');
+            // toggle Collapsed/Expanded and apply new Layers List height
+            toggleLayerControl.addEventListener('click', function() {
+                if (isLayersListExpanded) {
+                    controlLayersElement.classList.remove('leaflet-control-layers-expanded');
+                } else {
+                    controlLayersElement.classList.add('leaflet-control-layers-expanded');
+                }
+                isLayersListExpanded = !isLayersListExpanded;
+                newLayersListHeight()
+            });	
+			// apply new Layers List height if toggle layerstree
+			if (controlLayersElement) {
+				controlLayersElement.addEventListener('click', function(event) {
+					var toggleLayerHeaderPointer = event.target.closest('.leaflet-layerstree-header-pointer span');
+					if (toggleLayerHeaderPointer) {
+						newLayersListHeight();
+					}
+				});
+			}
+            // Collapsed/Expanded at Start to apply new height
+            setTimeout(function() {
+                toggleLayerControl.click();
+            }, 10);
+            setTimeout(function() {
+                toggleLayerControl.click();
+            }, 10);
+            // Collapsed touch/small screen
+            var isSmallScreen = window.innerWidth < 650;
+            if (isSmallScreen) {
+                setTimeout(function() {
+                    controlLayersElement.classList.remove('leaflet-control-layers-expanded');
+                    isLayersListExpanded = !isLayersListExpanded;
+                }, 500);
+            }  
+        });       
+        setBounds();
+        var i = 0;
+        layer_StateofTexasTurnout_2.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((exp_label_StateofTexasTurnout_2_eval_expression(context) !== null?String('<div style="color: #323232; font-size: 10pt; font-family: \'Helvetica\', sans-serif;">' + exp_label_StateofTexasTurnout_2_eval_expression(context)) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_StateofTexasTurnout_2'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        resetLabels([layer_StateofTexasTurnout_2,layer_HidalgoCountyTurnout_3]);
+        map.on("zoomend", function(){
+            resetLabels([layer_StateofTexasTurnout_2,layer_HidalgoCountyTurnout_3]);
+        });
+        map.on("layeradd", function(){
+            resetLabels([layer_StateofTexasTurnout_2,layer_HidalgoCountyTurnout_3]);
+        });
+        map.on("layerremove", function(){
+            resetLabels([layer_StateofTexasTurnout_2,layer_HidalgoCountyTurnout_3]);
+        });
+        </script>
+    </body>
+</html>
